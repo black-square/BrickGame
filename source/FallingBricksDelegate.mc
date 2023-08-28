@@ -18,6 +18,10 @@ class FallingBricksDelegate extends WatchUi.BehaviorDelegate {
     function onKey(keyEvent as WatchUi.KeyEvent) as Lang.Boolean {
         System.println("onKey " + keyEvent.getKey() );
 
+        if( keyEvent.getKey() == KEY_ENTER ) {
+            _view.Rotate();      
+        }
+
         return true;
     }
 

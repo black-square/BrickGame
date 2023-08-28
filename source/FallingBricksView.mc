@@ -4,8 +4,6 @@ using Toybox.Timer;
 using Toybox.Lang;
 using Toybox.Graphics;
 
-const FIELD_W = 10;
-const FIELD_H = 34;
 const BLOCK_SIZE = 5;
 const BUFF_W = FIELD_W * BLOCK_SIZE + 3;
 const BUFF_H = FIELD_H * BLOCK_SIZE + 3;
@@ -20,30 +18,30 @@ class FallingBricksView extends WatchUi.View {
     var moveRight = false;
     var prevUpdateTime = System.getTimer(); 
     var offscreenBuffer as Graphics.BufferedBitmap?;
+    var gameplay = new Gameplay();
     
     function initialize() {
         View.initialize();
 
-        if (Toybox.Graphics has :BufferedBitmap) { 
-            offscreenBuffer = new Graphics.BufferedBitmap(
-                {:width=>BUFF_W,
-                 :height=>BUFF_H,
-                 :palette=>[Graphics.COLOR_BLACK,
-                            Graphics.COLOR_WHITE]} );
+        offscreenBuffer = new Graphics.BufferedBitmap(
+            {:width=>BUFF_W,
+            :height=>BUFF_H,
+            :palette=>[Graphics.COLOR_BLACK,
+                    Graphics.COLOR_WHITE]} );
 
-            var dc = offscreenBuffer.getDc();
+        var dc = offscreenBuffer.getDc();
 
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
 
-            dc.drawRectangle(0, 0, BUFF_W, BUFF_H);
+        dc.clear();
 
-            for (var x = 0; x != FIELD_W; ++x ) {
-                for ( var y = 0; y != FIELD_H; ++y ) {
+        dc.drawRectangle(0, 0, BUFF_W, BUFF_H);
+
+        for (var x = 0; x != FIELD_W; ++x ) {
+            for ( var y = 0; y != FIELD_H; ++y ) {
                 drawBlock( x, y, dc );    
-                }     
-            }
+            }     
         }
-
     }
 
     function timerCallback() as Void {
@@ -74,7 +72,8 @@ class FallingBricksView extends WatchUi.View {
         var curUpdateTime = System.getTimer();
         var duration = curUpdateTime - prevUpdateTime;
         prevUpdateTime = curUpdateTime;
-        //System.println( "onUpdate " + duration );
+
+        gameplay.Tick();
 
         if( moveLeft ) {
             posX -= 1;
@@ -84,6 +83,10 @@ class FallingBricksView extends WatchUi.View {
         
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
+
+        TestDraw();
+
+
         dc.drawBitmap(42, 1, offscreenBuffer);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_DK_GRAY);
         dc.fillCircle( posX, posY, 10 );
@@ -98,6 +101,29 @@ class FallingBricksView extends WatchUi.View {
         }
     }
 
+    function Rotate() as Void {
+        gameplay.rotate();
+    }
+
+    function TestDraw() as Void {
+        var tstField = gameplay.BuildFieldForDraw();
+
+        var dc = offscreenBuffer.getDc();
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+
+        dc.clear();
+
+        for (var x = 0; x != FIELD_W; ++x ) {
+            for ( var y = 0; y != FIELD_H; ++y ) {
+
+                if( tstField[ x + y * FIELD_W] == 1 ) {
+                    drawBlock( x, y, dc );
+                }                 
+            }     
+        }
+
+    }
 
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
