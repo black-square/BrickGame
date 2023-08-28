@@ -1,0 +1,8 @@
+<strings>
+    <string id="AppName">FallingBricks</string>
+
+    <string id="prompt">Click the menu button</string>
+
+    <string id="menu_label_1">Item 1</string>
+    <string id="menu_exit">Exit</string>
+</strings>
