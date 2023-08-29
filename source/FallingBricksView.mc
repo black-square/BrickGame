@@ -19,6 +19,8 @@ class FallingBricksView extends WatchUi.View {
     var prevUpdateTime = System.getTimer(); 
     var offscreenBuffer as Graphics.BufferedBitmap?;
     var gameplay = new Gameplay();
+    var tickDuration = 1000;
+    var prevTick = System.getTimer();
     
     function initialize() {
         View.initialize();
@@ -73,7 +75,10 @@ class FallingBricksView extends WatchUi.View {
         var duration = curUpdateTime - prevUpdateTime;
         prevUpdateTime = curUpdateTime;
 
-        gameplay.Tick();
+        if( prevTick + tickDuration <= curUpdateTime ) {
+            gameplay.Tick();
+            prevTick = curUpdateTime;
+        }     
 
         if( moveLeft ) {
             posX -= 1;
@@ -90,7 +95,7 @@ class FallingBricksView extends WatchUi.View {
         dc.drawBitmap(42, 1, offscreenBuffer);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_DK_GRAY);
         dc.fillCircle( posX, posY, 10 );
-        var fps = (duration > 0 ? (1000 + duration >> 2) / duration: 0).format("%d");
+        var fps = (duration > 0 ? (1000 + duration / 2) / duration: 0).format("%d");
         dc.drawText(144, 32, Graphics.FONT_XTINY, fps,  Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         
         posY += 1;
@@ -113,6 +118,7 @@ class FallingBricksView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
 
         dc.clear();
+        dc.drawRectangle(0, 0, BUFF_W, BUFF_H);
 
         for (var x = 0; x != FIELD_W; ++x ) {
             for ( var y = 0; y != FIELD_H; ++y ) {
