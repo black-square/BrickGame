@@ -4,7 +4,7 @@ using Toybox.Timer;
 using Toybox.Lang;
 using Toybox.Graphics;
 
-const BLOCK_SIZE = 5;
+const BLOCK_SIZE = 7;
 const BUFF_W = FIELD_W * BLOCK_SIZE + 3;
 const BUFF_H = FIELD_H * BLOCK_SIZE + 3;
 
@@ -66,7 +66,7 @@ class FallingBricksView extends WatchUi.View {
     }
 
     function drawBlock( x as Lang.Number, y as Lang.Number, dc as Dc ) as Void {
-        dc.drawRectangle(2 + BLOCK_SIZE * x, 2 + BLOCK_SIZE * y, 4, 4);
+        dc.drawRectangle(2 + BLOCK_SIZE * x, 2 + BLOCK_SIZE * y, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
     }
 
     // Update the view
@@ -92,7 +92,7 @@ class FallingBricksView extends WatchUi.View {
         TestDraw();
 
 
-        dc.drawBitmap(42, 1, offscreenBuffer);
+        dc.drawBitmap(24, 16, offscreenBuffer);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_DK_GRAY);
         dc.fillCircle( posX, posY, 10 );
         var fps = (duration > 0 ? (1000 + duration / 2) / duration: 0).format("%d");
@@ -106,8 +106,16 @@ class FallingBricksView extends WatchUi.View {
         }
     }
 
-    function Rotate() as Void {
+    function rotate() as Void {
         gameplay.rotate();
+    }
+
+    function shiftPrimitive( dir as Lang.Number ) as Void {
+        gameplay.shiftPrimitive(dir); 
+    }
+
+    function accelDown() as Void {
+        gameplay.accelDown();
     }
 
     function TestDraw() as Void {

@@ -1,7 +1,7 @@
 import Toybox.Lang;
 
 const FIELD_W = 10;
-const FIELD_H = 34;
+const FIELD_H = 20;
 const PRIM_SIZE = 4;
 
 const PRIMITIVES = [ 
@@ -47,10 +47,6 @@ class Primitive {
     var top = 0;
     var right = 0;
     var bottom = 0;
-
-    function initialize() {
-        pickNewPrim();  
-    }
 
     function calcBounds() as Void {    
         left = PRIM_SIZE;
@@ -101,7 +97,7 @@ class Primitive {
         calcBounds();
     }
 
-    function pickNewPrim() as Void {
+    function pickNewPrim() as Lang.Number {
         data = PRIMITIVES[ Math.rand() % PRIMITIVES.size() ];
         var rotNum = Math.rand() % 4;
 
@@ -110,6 +106,8 @@ class Primitive {
         }
 
         calcBounds();
+
+        return (FIELD_W - (right - left)) / 2;
     }
 
     function placeCurPrim( posX as Lang.Number, posY as Lang.Number, field as Lang.Array ) as Void {
@@ -119,7 +117,7 @@ class Primitive {
         for (var x = left; x < right; ++x) {
             for (var y = top; y < bottom; ++y) {
                 if( data[x + y * PRIM_SIZE] == 1 ) {
-                    field[x + posX + (y + posY) * FIELD_W] = 1;
+                    field[posX + x + (posY + y) * FIELD_W] = 1;
                 }
             }
         }
@@ -135,7 +133,7 @@ class Primitive {
         
         for (var x = left; x < right; ++x) {
             for (var y = top; y < bottom; ++y) {
-                if ( field[x + posX + (y + posY) * FIELD_W] == 1 && data[x + y * PRIM_SIZE] == 1 ) {
+                if ( field[posX + x + (posY + y) * FIELD_W] == 1 && data[x + y * PRIM_SIZE] == 1 ) {
                     return true;
                 }
             }
@@ -148,10 +146,13 @@ class Primitive {
 class Gameplay  {
     var field = new[FIELD_W * FIELD_H];
     
-    var primPosX = FIELD_W / 2;
+    var primPosX = 0;
     var primPosY = 0;
     var curPrim = new Primitive();
 
+    function initialize() {
+        primPosX = curPrim.pickNewPrim();  
+    }
 
     function BuildFieldForDraw() as Lang.Array {
         var newField = new[FIELD_W * FIELD_H];
@@ -168,17 +169,44 @@ class Gameplay  {
     function Tick() as Void {
         if( curPrim.detectCollision(primPosX, primPosY + 1, field) ) {
             curPrim.placeCurPrim(primPosX, primPosY, field);
-            curPrim.pickNewPrim();
-            primPosY = 0;
+            primPosX = curPrim.pickNewPrim();
+            primPosY = 0;      
         } else {
             primPosY += 1;
         } 
     }
 
-    function rotate() as Void {
-        curPrim.rotate();
+    function shiftPrimitive( dir as Lang.Number ) as Void {
+        var newPosX = primPosX + dir;
+        
+        if( newPosX >= 0 && newPosX + curPrim.right - curPrim.left <= FIELD_W ) {
+            primPosX = newPosX;
+        }
     }
 
+    function rotate() as Void {
+        var newPosX = primPosX;
 
+        curPrim.rotate();
 
+        var primWidth = curPrim.right - curPrim.left;
+
+        if( newPosX + primWidth > FIELD_W ) {
+            newPosX = FIELD_W - primWidth;
+        }      
+
+        if( curPrim.detectCollision(newPosX, primPosY, field) ) {
+            for (var i = 0; i < 3; ++i) {
+                curPrim.rotate();
+            }
+        } else {
+            primPosX = newPosX;    
+        } 
+    }
+
+    function accelDown() as Void {
+        do{
+            Tick();            
+        } while ( primPosY != 0 );
+    }
 }
