@@ -159,11 +159,7 @@ class Gameplay  {
     }
 
     function BuildFieldForDraw() as Lang.Array {
-        var newField = new[FIELD_W * FIELD_H];
-
-        for (var i = 0; i != newField.size(); ++i ) {
-            newField[i] = field[i];   
-        }
+        var newField = field.slice(null, null);
 
         curPrim.placeCurPrim(primPosX, primPosY, newField);
 

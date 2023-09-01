@@ -44,9 +44,8 @@ class FallingBricksView extends WatchUi.View {
         dc.drawRectangle(0, 0, BUFF_W, BUFF_H);
     }
 
-    function syncFieldAndCache() as Void {
+    function syncFieldAndCache(newField as Lang.Array) as Void {
         var dc = offscreenBuffer.getDc();
-        var newField = gameplay.BuildFieldForDraw();
 
         for (var x = 0; x != FIELD_W; ++x ) {
             for ( var y = 0; y != FIELD_H; ++y ) {
@@ -80,20 +79,28 @@ class FallingBricksView extends WatchUi.View {
 
     // Update the view
     function onUpdate(dc as Dc) as Void {
-        var beginUpdateTime = System.getTimer();   
-        
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
 
-        syncFieldAndCache();
+        var beginDraw = System.getTimer();
+        var newField = gameplay.BuildFieldForDraw();
+
+        var afterFieldBuild = System.getTimer();
+
+        syncFieldAndCache(newField);
+
+        var afterSyncCache = System.getTimer();
 
         dc.drawBitmap(24, 16, offscreenBuffer);
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.drawText(169, 90, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        var endUpdateTime = System.getTimer();
-        dc.drawText(144, 32, Graphics.FONT_XTINY, (endUpdateTime - beginUpdateTime).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        var endDraw = System.getTimer();
+
+        dc.drawText(143, 120, Graphics.FONT_XTINY, (afterFieldBuild - beginDraw).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(143, 140, Graphics.FONT_XTINY, (afterSyncCache - afterFieldBuild).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(143, 160, Graphics.FONT_XTINY, (endDraw - afterSyncCache).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         var shift = 45 * tickNum;
         dc.drawArc( 144, 31, 29, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
