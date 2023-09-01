@@ -91,12 +91,13 @@ class FallingBricksView extends WatchUi.View {
 
         TestDraw();
 
-
         dc.drawBitmap(24, 16, offscreenBuffer);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_DK_GRAY);
         dc.fillCircle( posX, posY, 10 );
-        var fps = (duration > 0 ? (1000 + duration / 2) / duration: 0).format("%d");
-        dc.drawText(144, 32, Graphics.FONT_XTINY, fps,  Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(169, 90, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        var endUpdateTime = System.getTimer();
+        dc.drawText(144, 32, Graphics.FONT_XTINY, (endUpdateTime - curUpdateTime).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         
         posY += 1;
 

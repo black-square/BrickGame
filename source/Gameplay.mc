@@ -41,6 +41,8 @@ const PRIMITIVES = [
         0, 0, 0, 0, ],
 ];
 
+const SCORES = [0, 40, 100, 300, 1200];
+
 class Primitive {
     var data as Lang.Array?;
     var left = 0;
@@ -149,6 +151,7 @@ class Gameplay  {
     var primPosX = 0;
     var primPosY = 0;
     var curPrim = new Primitive();
+    var score = 0;
 
     function initialize() {
         primPosX = curPrim.pickNewPrim();  
@@ -166,11 +169,57 @@ class Gameplay  {
         return newField;
     }
 
+    function RemoveRow( posY as Lang.Number ) as Void {
+        for( var y = posY; y > 0; --y ) {
+
+            var nextY = y - 1;
+
+            for( var x = 0; x < FIELD_W ; ++x )  {
+                field[x + y * FIELD_W] = field[x + nextY * FIELD_W];  
+            }
+        }
+
+        for( var x = 0; x < FIELD_W ; ++x )  {
+            field[x + 0 * FIELD_W] = 0;  
+        }  
+    }
+
+    function DetectAndRemoveFilledRows() as Lang.Number {
+        var matchedRowsIdx = new[PRIM_SIZE];
+        var matchedRowsCount = 0;
+
+        for( var y = primPosY; y < primPosY + curPrim.bottom - curPrim.top; ++y ) {
+            for( var x = 0;; ++x )  {
+                if( x == FIELD_W ) {
+                    matchedRowsIdx[y - primPosY] = 1;
+                    ++matchedRowsCount;
+                    break; 
+                }
+
+                if( field[x + y * FIELD_W] != 1 ) {
+                    break;
+                }         
+            }
+        }
+
+        for( var y = 0; y < PRIM_SIZE; ++y ) {
+            if( matchedRowsIdx[y] == 1 ) {
+                RemoveRow( y + primPosY );    
+            }
+        }
+            
+        return matchedRowsCount;
+    }
+
     function Tick() as Void {
         if( curPrim.detectCollision(primPosX, primPosY + 1, field) ) {
             curPrim.placeCurPrim(primPosX, primPosY, field);
+
+            var matchedRowsCount = DetectAndRemoveFilledRows();
+
             primPosX = curPrim.pickNewPrim();
-            primPosY = 0;      
+            primPosY = 0;
+            score += SCORES[matchedRowsCount];      
         } else {
             primPosY += 1;
         } 
@@ -179,7 +228,9 @@ class Gameplay  {
     function shiftPrimitive( dir as Lang.Number ) as Void {
         var newPosX = primPosX + dir;
         
-        if( newPosX >= 0 && newPosX + curPrim.right - curPrim.left <= FIELD_W ) {
+        if( newPosX >= 0 && newPosX + curPrim.right - curPrim.left <= FIELD_W && 
+            !curPrim.detectCollision(newPosX, primPosY, field) ) 
+        {
             primPosX = newPosX;
         }
     }
