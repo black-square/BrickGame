@@ -152,6 +152,7 @@ class Gameplay  {
     var primPosY = 0;
     var curPrim = new Primitive();
     var score = 0;
+    var tickDuration = 1000;
 
     function initialize() {
         primPosX = curPrim.pickNewPrim();  

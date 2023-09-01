@@ -16,8 +16,6 @@ class FallingBricksDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onKey(keyEvent as WatchUi.KeyEvent) as Lang.Boolean {
-        System.println("onKey " + keyEvent.getKey() );
-
         switch( keyEvent.getKey() ) {
             case KEY_UP:
                 _view.rotate(); return true;
@@ -34,32 +32,4 @@ class FallingBricksDelegate extends WatchUi.BehaviorDelegate {
 
         return false;
     }
-
-    function onKeyPressed(keyEvent as WatchUi.KeyEvent) as Lang.Boolean {
-        System.println("onKeyPressed " + keyEvent.getKey() );
-
-        if( keyEvent.getKey() == KEY_ESC ) {
-            _view.moveRight = true;       
-        }
-        else if( keyEvent.getKey() == KEY_DOWN ) {
-            _view.moveLeft = true;     
-        }
-
-        return true;
-    }
-
-
-    function onKeyReleased(keyEvent as WatchUi.KeyEvent) as Lang.Boolean {
-        System.println("onKeyReleased " + keyEvent.getKey() );
-
-        if( keyEvent.getKey() == KEY_ESC ) {
-            _view.moveRight = false;       
-        }
-        else if( keyEvent.getKey() == KEY_DOWN ) {
-            _view.moveLeft = false;     
-        }
-
-        return true;
-    }
-
 }
