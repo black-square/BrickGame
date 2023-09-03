@@ -41,7 +41,8 @@ const PRIMITIVES = [
         0, 0, 0, 0, ],
 ];
 
-const SCORES = [0, 4, 10, 30, 120];
+const SCORE_MULTIPLIER = [0, 40, 100, 300, 1200];
+const HARD_DROP_MULTIPLIER = 2;
 
 class Rect {
     var left = 0;
@@ -109,8 +110,8 @@ class Rect {
             }
         }
 
-        right += 1;
-        bottom += 1;
+        ++right;
+        ++bottom;
     }
 }
 
@@ -189,11 +190,20 @@ class Gameplay  {
     var primPosY = 0;
     var curPrim = new Primitive();
     var score = 0;
-    var tickDuration = 1000;
+    var level = 0;
+    var clearedLinesToNextLevel = 0;
+    var tickDuration = 0;
 
     function initialize() {
         primPosX = curPrim.pickNewPrim();  
         dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
+        nextLevel();
+    }
+
+    function nextLevel() as Void {
+        ++level;
+        tickDuration = ( Math.pow( 0.8 - (level - 1) * 0.007, level - 1 ) * 1000 + 0.5 ).toNumber();
+        clearedLinesToNextLevel += 10;
     }
 
     function BuildFieldForDraw() as Lang.Array {
@@ -256,12 +266,18 @@ class Gameplay  {
 
             var matchedRowsCount = DetectAndRemoveFilledRows();
 
-            score += SCORES[matchedRowsCount];
+            score += SCORE_MULTIPLIER[matchedRowsCount] * level;
             primPosX = curPrim.pickNewPrim();
             primPosY = 0;
+
+            clearedLinesToNextLevel -= matchedRowsCount;
+
+            if( clearedLinesToNextLevel <= 0 ) {
+                nextLevel();
+            }
         } else {
             dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
-            primPosY += 1;
+            ++primPosY;
         }
 
         dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );  
@@ -302,8 +318,14 @@ class Gameplay  {
     }
 
     function accelDown() as Void {
+        
+        var cellsTraveled = -1; // The last Tick() doesn't move anything
+
         do{
-            Tick();            
+            Tick();
+            ++cellsTraveled;
         } while ( primPosY != 0 );
+
+        score += HARD_DROP_MULTIPLIER * cellsTraveled;
     }
 }

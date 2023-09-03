@@ -96,7 +96,8 @@ class FallingBricksView extends WatchUi.View {
         dc.drawBitmap(24, 16, offscreenBuffer);
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.drawText(169, 90, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(169, 93, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(145, 30, Graphics.FONT_LARGE, gameplay.level, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         var endDraw = System.getTimer();
 
@@ -108,7 +109,7 @@ class FallingBricksView extends WatchUi.View {
         var shift = 45 * tickNum;
         dc.drawArc( 144, 31, 29, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
         
-        tickNum += 1;
+        ++tickNum;
     }
 
     function rotate() as Void {
