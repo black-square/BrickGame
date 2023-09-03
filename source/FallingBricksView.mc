@@ -8,6 +8,8 @@ const BLOCK_SIZE = 7;
 const BUFF_W = FIELD_W * BLOCK_SIZE + 3;
 const BUFF_H = FIELD_H * BLOCK_SIZE + 3;
 
+const FG_COLOR = Graphics.COLOR_BLACK;
+const BG_COLOR = Graphics.COLOR_WHITE; 
 
 class FallingBricksView extends WatchUi.View {
     var tickNum = 0;
@@ -41,7 +43,7 @@ class FallingBricksView extends WatchUi.View {
 
         dc = offscreenBuffer.getDc();
 
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(FG_COLOR, BG_COLOR);
         dc.clear();
 
         for (var x = 1; x < FIELD_W - 1; x += 2) {
@@ -66,11 +68,11 @@ class FallingBricksView extends WatchUi.View {
                 }
 
                 if( newVal == 1 ) {
-                    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+                    dc.setColor(FG_COLOR, BG_COLOR);
                     dc.drawRectangle(2 + BLOCK_SIZE * x, 2 + BLOCK_SIZE * y, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
                     dc.drawRectangle(BLOCK_SIZE * x + 4, BLOCK_SIZE * y + 4, BLOCK_SIZE - 5, BLOCK_SIZE - 5);
                 } else {
-                    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+                    dc.setColor(BG_COLOR, FG_COLOR);
                     dc.fillRectangle(2 + BLOCK_SIZE * x, 2 + BLOCK_SIZE * y, BLOCK_SIZE - 1, BLOCK_SIZE - 1); 
                 }
 
@@ -101,9 +103,10 @@ class FallingBricksView extends WatchUi.View {
 
         var afterSyncCache = System.getTimer();
 
-        dc.drawBitmap(24, 16, offscreenBuffer);
+        dc.setColor(FG_COLOR, BG_COLOR);
+        dc.clear();
 
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.drawBitmap(24, 16, offscreenBuffer);
         dc.drawText(169, 93, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.drawText(145, 30, Graphics.FONT_LARGE, gameplay.level, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
