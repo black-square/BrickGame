@@ -43,6 +43,13 @@ class FallingBricksView extends WatchUi.View {
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
+
+        for (var x = 1; x < FIELD_W - 1; x += 2) {
+            for ( var y = 1; y < FIELD_H - 1; y += 4 ) {
+                dc.drawPoint( BLOCK_SIZE * (x + 1) + 1, BLOCK_SIZE * (y + 1) + 1 );
+            }
+        } 
+
         dc.drawRectangle(0, 0, BUFF_W, BUFF_H);
     }
 
@@ -61,6 +68,7 @@ class FallingBricksView extends WatchUi.View {
                 if( newVal == 1 ) {
                     dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
                     dc.drawRectangle(2 + BLOCK_SIZE * x, 2 + BLOCK_SIZE * y, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                    dc.drawRectangle(BLOCK_SIZE * x + 4, BLOCK_SIZE * y + 4, BLOCK_SIZE - 5, BLOCK_SIZE - 5);
                 } else {
                     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
                     dc.fillRectangle(2 + BLOCK_SIZE * x, 2 + BLOCK_SIZE * y, BLOCK_SIZE - 1, BLOCK_SIZE - 1); 
