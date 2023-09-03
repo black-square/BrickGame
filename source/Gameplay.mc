@@ -41,24 +41,55 @@ const PRIMITIVES = [
         0, 0, 0, 0, ],
 ];
 
-const SCORES = [0, 40, 100, 300, 1200];
+const SCORES = [0, 4, 10, 30, 120];
 
-class Primitive {
-    var data as Lang.Array?;
+class Rect {
     var left = 0;
     var top = 0;
     var right = 0;
     var bottom = 0;
 
-    function calcBounds() as Void {    
-        left = PRIM_SIZE;
-        top = PRIM_SIZE;
+
+    function initialize() {
+        reset();
+    }
+
+    function reset() as Void {
+        left = FIELD_W;
+        top = FIELD_H;
         right = 0;
         bottom = 0;
+    }
+
+    function expand (l as Lang.Number, t as Lang.Number, r as Lang.Number, b as Lang.Number) as Void {
+        if( l < left ) {
+            left = l;
+        }
+
+        if( t < top ) {
+            top = t;
+        }
+
+        if( r > right ) {
+            right = r;
+        }
+
+        if( b > bottom ) {
+            bottom = b;
+        }
+    }
+
+    function expandRect ( x as Lang.Number, y as Lang.Number, r as Rect ) as Void {
+        expand( x, y, x + r.right - r.left, y + r.bottom - r.top );
+    }
+
+
+    function calcMatixBounds( data as Lang.Array, width as Lang.Number, height as Lang.Number ) as Void {    
+        reset();
         
-        for (var x = 0; x < PRIM_SIZE; ++x) {
-            for (var y = 0; y < PRIM_SIZE; ++y) {
-                if( data[x + y * PRIM_SIZE] == 1 ) {
+        for (var x = 0; x < width; ++x) {
+            for (var y = 0; y < height; ++y) {
+                if( data[x + y * width] == 1 ) {
                     if( x < left ){
                         left = x;
                     }
@@ -81,6 +112,11 @@ class Primitive {
         right += 1;
         bottom += 1;
     }
+}
+
+class Primitive {
+    var data as Lang.Array?;
+    var bounds as Rect = new Rect();    
 
     function rotateImp() as Void {
         var res = new [PRIM_SIZE * PRIM_SIZE];
@@ -96,7 +132,7 @@ class Primitive {
 
     function rotate() as Void {
         rotateImp();
-        calcBounds();
+        bounds.calcMatixBounds( data, PRIM_SIZE, PRIM_SIZE );
     }
 
     function pickNewPrim() as Lang.Number {
@@ -107,17 +143,17 @@ class Primitive {
             rotateImp();
         }
 
-        calcBounds();
+        bounds.calcMatixBounds( data, PRIM_SIZE, PRIM_SIZE );
 
-        return (FIELD_W - (right - left)) / 2;
+        return (FIELD_W - (bounds.right - bounds.left)) / 2;
     }
 
     function placeCurPrim( posX as Lang.Number, posY as Lang.Number, field as Lang.Array ) as Void {
-        posX -= left;
-        posY -= top;
+        posX -= bounds.left;
+        posY -= bounds.top;
         
-        for (var x = left; x < right; ++x) {
-            for (var y = top; y < bottom; ++y) {
+        for (var x = bounds.left; x < bounds.right; ++x) {
+            for (var y = bounds.top; y < bounds.bottom; ++y) {
                 if( data[x + y * PRIM_SIZE] == 1 ) {
                     field[posX + x + (posY + y) * FIELD_W] = 1;
                 }
@@ -126,15 +162,15 @@ class Primitive {
     }
 
     function detectCollision( posX as Lang.Number, posY as Lang.Number, field as Lang.Array ) as Boolean {
-        if( posY + bottom - top > FIELD_H ) {
+        if( posY + bounds.bottom - bounds.top > FIELD_H ) {
             return true;
         }
 
-        posX -= left;
-        posY -= top;
+        posX -= bounds.left;
+        posY -= bounds.top;
         
-        for (var x = left; x < right; ++x) {
-            for (var y = top; y < bottom; ++y) {
+        for (var x = bounds.left; x < bounds.right; ++x) {
+            for (var y = bounds.top; y < bounds.bottom; ++y) {
                 if ( field[posX + x + (posY + y) * FIELD_W] == 1 && data[x + y * PRIM_SIZE] == 1 ) {
                     return true;
                 }
@@ -147,6 +183,7 @@ class Primitive {
 
 class Gameplay  {
     var field = new[FIELD_W * FIELD_H];
+    var dirtyRect as Rect = new Rect();
     
     var primPosX = 0;
     var primPosY = 0;
@@ -156,14 +193,17 @@ class Gameplay  {
 
     function initialize() {
         primPosX = curPrim.pickNewPrim();  
+        dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
     }
 
     function BuildFieldForDraw() as Lang.Array {
         var newField = field.slice(null, null);
 
         curPrim.placeCurPrim(primPosX, primPosY, newField);
+        var resRect = dirtyRect;
+        dirtyRect = new Rect();
 
-        return newField;
+        return [newField, resRect];
     }
 
     function RemoveRow( posY as Lang.Number ) as Void {
@@ -178,14 +218,16 @@ class Gameplay  {
 
         for( var x = 0; x < FIELD_W ; ++x )  {
             field[x + 0 * FIELD_W] = 0;  
-        }  
+        }
+
+        dirtyRect.expand( 0, 0, FIELD_W, posY + 1 );  
     }
 
     function DetectAndRemoveFilledRows() as Lang.Number {
         var matchedRowsIdx = new[PRIM_SIZE];
         var matchedRowsCount = 0;
 
-        for( var y = primPosY; y < primPosY + curPrim.bottom - curPrim.top; ++y ) {
+        for( var y = primPosY; y < primPosY + curPrim.bounds.bottom - curPrim.bounds.top; ++y ) {
             for( var x = 0;; ++x )  {
                 if( x == FIELD_W ) {
                     matchedRowsIdx[y - primPosY] = 1;
@@ -214,30 +256,36 @@ class Gameplay  {
 
             var matchedRowsCount = DetectAndRemoveFilledRows();
 
+            score += SCORES[matchedRowsCount];
             primPosX = curPrim.pickNewPrim();
             primPosY = 0;
-            score += SCORES[matchedRowsCount];      
         } else {
+            dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
             primPosY += 1;
-        } 
+        }
+
+        dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );  
     }
 
     function shiftPrimitive( dir as Lang.Number ) as Void {
         var newPosX = primPosX + dir;
         
-        if( newPosX >= 0 && newPosX + curPrim.right - curPrim.left <= FIELD_W && 
+        if( newPosX >= 0 && newPosX + curPrim.bounds.right - curPrim.bounds.left <= FIELD_W && 
             !curPrim.detectCollision(newPosX, primPosY, field) ) 
         {
+            dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds ); 
             primPosX = newPosX;
+            dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds ); 
         }
     }
 
     function rotate() as Void {
         var newPosX = primPosX;
 
+        dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
         curPrim.rotate();
 
-        var primWidth = curPrim.right - curPrim.left;
+        var primWidth = curPrim.bounds.right - curPrim.bounds.left;
 
         if( newPosX + primWidth > FIELD_W ) {
             newPosX = FIELD_W - primWidth;
@@ -247,8 +295,9 @@ class Gameplay  {
             for (var i = 0; i < 3; ++i) {
                 curPrim.rotate();
             }
-        } else {
-            primPosX = newPosX;    
+        } else { 
+            primPosX = newPosX;
+            dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );     
         } 
     }
 
