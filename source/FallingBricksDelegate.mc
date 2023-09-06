@@ -27,7 +27,7 @@ class FallingBricksDelegate extends WatchUi.BehaviorDelegate {
                 _view.shiftPrimitive(+1); return true;
 
             case KEY_ENTER:
-                _view.accelDown(); return true;
+                _view.hardDrop(); return true;
         }
 
         return false;

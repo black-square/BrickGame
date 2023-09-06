@@ -46,6 +46,7 @@ class FallingBricksView extends WatchUi.View {
         dc.setColor(FG_COLOR, BG_COLOR);
         dc.clear();
 
+        //Draw guides to simplify hard drop
         for (var x = 1; x < FIELD_W - 1; x += 2) {
             for ( var y = 1; y < FIELD_H - 1; y += 4 ) {
                 dc.drawPoint( BLOCK_SIZE * (x + 1) + 1, BLOCK_SIZE * (y + 1) + 1 );
@@ -58,6 +59,7 @@ class FallingBricksView extends WatchUi.View {
     function syncFieldAndCache(newField as Lang.Array, dirtyRect as Rect) as Void {
         var dc = offscreenBuffer.getDc();
 
+        //We redraw only changed cells and only check those within the dirty rectangle
         for (var x = dirtyRect.left; x < dirtyRect.right; ++x ) {
             for ( var y = dirtyRect.top; y < dirtyRect.bottom; ++y ) {
                 var pos = x + y * FIELD_W;
@@ -110,17 +112,23 @@ class FallingBricksView extends WatchUi.View {
         dc.drawText(169, 93, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.drawText(145, 30, Graphics.FONT_LARGE, gameplay.level, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
+        if( !gameplay.isActive ) {
+            dc.drawText(87, 135, Graphics.FONT_LARGE, "Game Over", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
+
         var endDraw = System.getTimer();
-
-        dc.drawText(170, 120, Graphics.FONT_XTINY, (afterFieldBuild - beginDraw).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(136, 140, Graphics.FONT_XTINY, (afterSyncCache - afterFieldBuild).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(136, 160, Graphics.FONT_XTINY, (endDraw - afterSyncCache).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(136, 120, Graphics.FONT_XTINY, lastGameplayOpTime.format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-        var shift = 45 * tickNum;
-        dc.drawArc( 144, 31, 29, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
         
-        ++tickNum;
+        //Performace stats HUD
+        if( gameplay.isActive ) {
+            dc.drawText(170, 120, Graphics.FONT_XTINY, (afterFieldBuild - beginDraw).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(136, 140, Graphics.FONT_XTINY, (afterSyncCache - afterFieldBuild).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(136, 160, Graphics.FONT_XTINY, (endDraw - afterSyncCache).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(136, 120, Graphics.FONT_XTINY, lastGameplayOpTime.format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            var shift = 45 * tickNum;
+            dc.drawArc( 144, 31, 29, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
+            ++tickNum;
+        }
     }
 
     function rotate() as Void {
@@ -137,9 +145,9 @@ class FallingBricksView extends WatchUi.View {
         WatchUi.requestUpdate(); 
     }
 
-    function accelDown() as Void {
+    function hardDrop() as Void {
         var startGameplayOp = System.getTimer();
-        gameplay.accelDown();
+        gameplay.hardDrop();
         lastGameplayOpTime = System.getTimer() - startGameplayOp;
         refreshTimer.start(method(:timerCallback), gameplay.tickDuration, false);
         WatchUi.requestUpdate();

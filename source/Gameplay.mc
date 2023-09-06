@@ -84,8 +84,7 @@ class Rect {
         expand( x, y, x + r.right - r.left, y + r.bottom - r.top );
     }
 
-
-    function calcMatixBounds( data as Lang.Array, width as Lang.Number, height as Lang.Number ) as Void {    
+    function calcBounds( data as Lang.Array, width as Lang.Number, height as Lang.Number ) as Void {
         reset();
         
         for (var x = 0; x < width; ++x) {
@@ -133,7 +132,7 @@ class Primitive {
 
     function rotate() as Void {
         rotateImp();
-        bounds.calcMatixBounds( data, PRIM_SIZE, PRIM_SIZE );
+        bounds.calcBounds( data, PRIM_SIZE, PRIM_SIZE );
     }
 
     function pickNewPrim() as Lang.Number {
@@ -144,12 +143,12 @@ class Primitive {
             rotateImp();
         }
 
-        bounds.calcMatixBounds( data, PRIM_SIZE, PRIM_SIZE );
+        bounds.calcBounds( data, PRIM_SIZE, PRIM_SIZE );
 
         return (FIELD_W - (bounds.right - bounds.left)) / 2;
     }
 
-    function placeCurPrim( posX as Lang.Number, posY as Lang.Number, field as Lang.Array ) as Void {
+    function placeOnField( posX as Lang.Number, posY as Lang.Number, field as Lang.Array ) as Void {
         posX -= bounds.left;
         posY -= bounds.top;
         
@@ -184,6 +183,8 @@ class Primitive {
 
 class Gameplay  {
     var field = new[FIELD_W * FIELD_H];
+
+    //Helps to avoid looping through the whole field every time
     var dirtyRect as Rect = new Rect();
     
     var primPosX = 0;
@@ -193,6 +194,7 @@ class Gameplay  {
     var level = 0;
     var clearedLinesToNextLevel = 0;
     var tickDuration = 0;
+    var isActive = true;
 
     function initialize() {
         primPosX = curPrim.pickNewPrim();  
@@ -209,7 +211,7 @@ class Gameplay  {
     function BuildFieldForDraw() as Lang.Array {
         var newField = field.slice(null, null);
 
-        curPrim.placeCurPrim(primPosX, primPosY, newField);
+        curPrim.placeOnField(primPosX, primPosY, newField);
         var resRect = dirtyRect;
         dirtyRect = new Rect();
 
@@ -218,7 +220,6 @@ class Gameplay  {
 
     function RemoveRow( posY as Lang.Number ) as Void {
         for( var y = posY; y > 0; --y ) {
-
             var nextY = y - 1;
 
             for( var x = 0; x < FIELD_W ; ++x )  {
@@ -261,20 +262,30 @@ class Gameplay  {
     }
 
     function Tick() as Void {
+        if( !isActive ) {
+            return;
+        }
+
         if( curPrim.detectCollision(primPosX, primPosY + 1, field) ) {
-            curPrim.placeCurPrim(primPosX, primPosY, field);
+            curPrim.placeOnField(primPosX, primPosY, field);
 
             var matchedRowsCount = DetectAndRemoveFilledRows();
 
             score += SCORE_MULTIPLIER[matchedRowsCount] * level;
-            primPosX = curPrim.pickNewPrim();
-            primPosY = 0;
-
             clearedLinesToNextLevel -= matchedRowsCount;
 
             if( clearedLinesToNextLevel <= 0 ) {
                 nextLevel();
             }
+
+            primPosX = curPrim.pickNewPrim();
+            primPosY = 0;
+
+            if( curPrim.detectCollision(primPosX, primPosY, field) ) {
+                //Game Over
+                isActive = false;   
+            }
+
         } else {
             dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
             ++primPosY;
@@ -284,6 +295,10 @@ class Gameplay  {
     }
 
     function shiftPrimitive( dir as Lang.Number ) as Void {
+        if( !isActive ) {
+            return;
+        }
+
         var newPosX = primPosX + dir;
         
         if( newPosX >= 0 && newPosX + curPrim.bounds.right - curPrim.bounds.left <= FIELD_W && 
@@ -296,6 +311,10 @@ class Gameplay  {
     }
 
     function rotate() as Void {
+        if( !isActive ) {
+            return;
+        }
+
         var newPosX = primPosX;
 
         dirtyRect.expandRect( primPosX, primPosY, curPrim.bounds );
@@ -317,7 +336,10 @@ class Gameplay  {
         } 
     }
 
-    function accelDown() as Void {
+    function hardDrop() as Void {
+        if( !isActive ) {
+            return;
+        }
         
         var cellsTraveled = -1; // The last Tick() doesn't move anything
 
