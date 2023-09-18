@@ -12,11 +12,14 @@ const FG_COLOR = Graphics.COLOR_BLACK;
 const BG_COLOR = Graphics.COLOR_WHITE; 
 
 class FallingBricksView extends WatchUi.View {
-    var tickNum = 0;
     var offscreenBuffer as Graphics.BufferedBitmap?;
     var gameplay = new Gameplay();
     var refreshTimer = new Timer.Timer();
     var cachedField = new[FIELD_W * FIELD_H];
+
+    var tickNum = 0;
+
+    (:perfTelemetry)
     var lastGameplayOpTime = 0;
    
     function initialize() {
@@ -24,17 +27,15 @@ class FallingBricksView extends WatchUi.View {
     }
 
     function timerCallback() as Void {
-        var startGameplayOp = System.getTimer();
+        //var startGameplayOp = System.getTimer();
         gameplay.Tick();
-        lastGameplayOpTime = System.getTimer() - startGameplayOp;
+        //lastGameplayOpTime = System.getTimer() - startGameplayOp;
         refreshTimer.start(method(:timerCallback), gameplay.tickDuration, false);
         WatchUi.requestUpdate();
     }
 
     // Load your resources here
     function onLayout(dc as Dc) as Void {
-        setLayout(Rez.Layouts.MainLayout(dc));
-
         offscreenBuffer = new Graphics.BufferedBitmap(
             {:width=>BUFF_W,
             :height=>BUFF_H,
@@ -96,14 +97,14 @@ class FallingBricksView extends WatchUi.View {
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
 
-        var beginDraw = System.getTimer();
+        //var beginDraw = System.getTimer();
         var newField = gameplay.BuildFieldForDraw();
 
-        var afterFieldBuild = System.getTimer();
+        //var afterFieldBuild = System.getTimer();
 
         syncFieldAndCache(newField[0], newField[1]);
 
-        var afterSyncCache = System.getTimer();
+        //var afterSyncCache = System.getTimer();
 
         dc.setColor(FG_COLOR, BG_COLOR);
         dc.clear();
@@ -116,14 +117,14 @@ class FallingBricksView extends WatchUi.View {
             dc.drawText(87, 135, Graphics.FONT_LARGE, "Game Over", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
-        var endDraw = System.getTimer();
+        //var endDraw = System.getTimer();
         
         //Performace stats HUD
         if( gameplay.isActive ) {
-            dc.drawText(170, 120, Graphics.FONT_XTINY, (afterFieldBuild - beginDraw).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-            dc.drawText(136, 140, Graphics.FONT_XTINY, (afterSyncCache - afterFieldBuild).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-            dc.drawText(136, 160, Graphics.FONT_XTINY, (endDraw - afterSyncCache).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-            dc.drawText(136, 120, Graphics.FONT_XTINY, lastGameplayOpTime.format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            //dc.drawText(170, 120, Graphics.FONT_XTINY, (afterFieldBuild - beginDraw).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            //dc.drawText(136, 140, Graphics.FONT_XTINY, (afterSyncCache - afterFieldBuild).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            //dc.drawText(136, 160, Graphics.FONT_XTINY, (endDraw - afterSyncCache).format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            //dc.drawText(136, 120, Graphics.FONT_XTINY, lastGameplayOpTime.format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
             var shift = 45 * tickNum;
             dc.drawArc( 144, 31, 29, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
@@ -132,23 +133,23 @@ class FallingBricksView extends WatchUi.View {
     }
 
     function rotate() as Void {
-        var startGameplayOp = System.getTimer();
+        //var startGameplayOp = System.getTimer();
         gameplay.rotate();
-        lastGameplayOpTime = System.getTimer() - startGameplayOp;
+        //lastGameplayOpTime = System.getTimer() - startGameplayOp;
         WatchUi.requestUpdate();
     }
 
     function shiftPrimitive( dir as Lang.Number ) as Void {
-        var startGameplayOp = System.getTimer();
+        //var startGameplayOp = System.getTimer();
         gameplay.shiftPrimitive(dir);
-        lastGameplayOpTime = System.getTimer() - startGameplayOp;
+        //lastGameplayOpTime = System.getTimer() - startGameplayOp;
         WatchUi.requestUpdate(); 
     }
 
     function hardDrop() as Void {
-        var startGameplayOp = System.getTimer();
+        //var startGameplayOp = System.getTimer();
         gameplay.hardDrop();
-        lastGameplayOpTime = System.getTimer() - startGameplayOp;
+        //lastGameplayOpTime = System.getTimer() - startGameplayOp;
         refreshTimer.start(method(:timerCallback), gameplay.tickDuration, false);
         WatchUi.requestUpdate();
     }

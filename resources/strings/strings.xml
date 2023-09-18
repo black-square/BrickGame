@@ -1,5 +1,7 @@
 <strings>
     <string id="AppName">Brick Game</string>
-    <string id="menu_label_1">Start New Game</string>
+    <string id="start_new_game_label">Start New Game</string>
     <string id="menu_exit">Exit</string>
+    <string id="about_label">About</string>
+    <string id="pause_label">Pause</string>
 </strings>

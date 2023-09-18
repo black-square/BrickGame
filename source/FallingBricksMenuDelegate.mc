@@ -9,11 +9,14 @@ class FallingBricksMenuDelegate extends WatchUi.MenuInputDelegate {
     }
 
     function onMenuItem(item as Symbol) as Void {
-        if (item == :item_1) {
-            System.println("item 1");
+        if (item == :about) {
+            WatchUi.pushView(new AboutView(), new WatchUi.BehaviorDelegate(), WatchUi.SLIDE_UP);
         } else if (item == :exit) {
-            System.println("EXIT!");
             WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } else if (item == :start_new_game) {
+            var view = new FallingBricksView();
+            WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+            WatchUi.switchToView(view, new FallingBricksDelegate(view), WatchUi.SLIDE_LEFT); 
         }
     }
 
