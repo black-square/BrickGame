@@ -1,2 +1,5 @@
 project.manifest = manifest.xml
 base.excludeAnnotations = perfTelemetry
+instinct2s.excludeAnnotations = instinct2
+instinct2.excludeAnnotations = instinct2s
+instinct2x.excludeAnnotations = instinct2s

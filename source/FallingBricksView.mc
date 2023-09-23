@@ -11,6 +11,51 @@ const BUFF_H = FIELD_H * BLOCK_SIZE + 3;
 const FG_COLOR = Graphics.COLOR_BLACK;
 const BG_COLOR = Graphics.COLOR_WHITE; 
 
+(:instinct2)
+const FIELD_POS_X = 24;
+(:instinct2)
+const FIELD_POS_Y = 16;
+
+(:instinct2s)
+const FIELD_POS_X = 20;
+(:instinct2s)
+const FIELD_POS_Y = 7;
+
+(:instinct2)
+const SCORE_POS_X = 169;
+(:instinct2)
+const SCORE_POS_Y = 93;
+
+(:instinct2s)
+const SCORE_POS_X = 153;
+(:instinct2s)
+const SCORE_POS_Y = 80;
+
+(:instinct2)
+const LEVEL_POS_X = 145;
+(:instinct2)
+const LEVEL_POS_Y = 30;
+
+(:instinct2s)
+const LEVEL_POS_X = 136;
+(:instinct2s)
+const LEVEL_POS_Y = 25;
+
+(:instinct2)
+const ARC_POS_X = 144;
+(:instinct2)
+const ARC_POS_Y = 31;
+(:instinct2)
+const ARC_POS_R = 27;
+
+(:instinct2s)
+const ARC_POS_X = 136;
+(:instinct2s)
+const ARC_POS_Y = 27;
+(:instinct2s)
+const ARC_POS_R = 23;
+
+
 class FallingBricksView extends WatchUi.View {
     var offscreenBuffer as Graphics.BufferedBitmap?;
     var gameplay = new Gameplay();
@@ -109,12 +154,12 @@ class FallingBricksView extends WatchUi.View {
         dc.setColor(FG_COLOR, BG_COLOR);
         dc.clear();
 
-        dc.drawBitmap(24, 16, offscreenBuffer);
-        dc.drawText(169, 93, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(145, 30, Graphics.FONT_LARGE, gameplay.level, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawBitmap(FIELD_POS_X, FIELD_POS_Y, offscreenBuffer);
+        dc.drawText(SCORE_POS_X, SCORE_POS_Y, Graphics.FONT_LARGE, gameplay.score, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(LEVEL_POS_X, LEVEL_POS_Y, Graphics.FONT_LARGE, gameplay.level, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if( !gameplay.isActive ) {
-            dc.drawText(87, 135, Graphics.FONT_LARGE, "Game Over", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(dc.getWidth() / 2, 135, Graphics.FONT_LARGE, "Game Over", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
         //var endDraw = System.getTimer();
@@ -127,7 +172,7 @@ class FallingBricksView extends WatchUi.View {
             //dc.drawText(136, 120, Graphics.FONT_XTINY, lastGameplayOpTime.format("%d"), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
             var shift = 45 * tickNum;
-            dc.drawArc( 144, 31, 29, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
+            dc.drawArc( ARC_POS_X, ARC_POS_Y, ARC_POS_R, Graphics.ARC_CLOCKWISE, 90 - shift, 45 - shift );
             ++tickNum;
         }
     }
