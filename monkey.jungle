@@ -1,5 +1,10 @@
 project.manifest = manifest.xml
 base.excludeAnnotations = perfTelemetry
-instinct2s.excludeAnnotations = instinct2
-instinct2.excludeAnnotations = instinct2s
-instinct2x.excludeAnnotations = instinct2s
+instinct2s.excludeAnnotations = instinct2;round280
+instinct2.excludeAnnotations = instinct2s;round280
+instinct2x.excludeAnnotations = instinct2s;round280
+fenix7x.excludeAnnotations = instinct2s;instinct2
+fenix7xpro.excludeAnnotations = instinct2s;instinct2
+descentmk2.excludeAnnotations = instinct2s;instinct2
+enduro.excludeAnnotations = instinct2s;instinct2
+fenix6xpro.excludeAnnotations = instinct2s;instinct2

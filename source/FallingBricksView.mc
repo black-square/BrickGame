@@ -4,60 +4,48 @@ using Toybox.Timer;
 using Toybox.Lang;
 using Toybox.Graphics;
 
-const BLOCK_SIZE = 7;
+(:instinct2) const BLOCK_SIZE = 7;
+(:instinct2) const FIELD_POS_X = 24;
+(:instinct2) const FIELD_POS_Y = 16;
+(:instinct2) const SCORE_POS_X = 169;
+(:instinct2) const SCORE_POS_Y = 93;
+(:instinct2) const LEVEL_POS_X = 145;
+(:instinct2) const LEVEL_POS_Y = 30;
+(:instinct2) const ARC_POS_X = 144;
+(:instinct2) const ARC_POS_Y = 31;
+(:instinct2) const ARC_POS_R = 27;
+
+(:instinct2s) const BLOCK_SIZE = 7;
+(:instinct2s) const FIELD_POS_X = 20;
+(:instinct2s) const FIELD_POS_Y = 7;
+(:instinct2s) const SCORE_POS_X = 153;
+(:instinct2s) const SCORE_POS_Y = 80;
+(:instinct2s) const LEVEL_POS_X = 136;
+(:instinct2s) const LEVEL_POS_Y = 25;
+(:instinct2s) const ARC_POS_X = 136;
+(:instinct2s) const ARC_POS_Y = 27;
+(:instinct2s) const ARC_POS_R = 23;
+
+(:round280) const BLOCK_SIZE = 11;
+(:round280) const FIELD_POS_X = 57;
+(:round280) const FIELD_POS_Y = 28;
+(:round280) const SCORE_POS_X = 271;
+(:round280) const SCORE_POS_Y = 129;
+(:round280) const LEVEL_POS_X = 215;
+(:round280) const LEVEL_POS_Y = 70;
+(:round280) const ARC_POS_X = LEVEL_POS_X;
+(:round280) const ARC_POS_Y = LEVEL_POS_Y;
+(:round280) const ARC_POS_R = 27;
+
 const BUFF_W = FIELD_W * BLOCK_SIZE + 3;
 const BUFF_H = FIELD_H * BLOCK_SIZE + 3;
 
 const FG_COLOR = Graphics.COLOR_BLACK;
 const BG_COLOR = Graphics.COLOR_WHITE; 
 
-(:instinct2)
-const FIELD_POS_X = 24;
-(:instinct2)
-const FIELD_POS_Y = 16;
-
-(:instinct2s)
-const FIELD_POS_X = 20;
-(:instinct2s)
-const FIELD_POS_Y = 7;
-
-(:instinct2)
-const SCORE_POS_X = 169;
-(:instinct2)
-const SCORE_POS_Y = 93;
-
-(:instinct2s)
-const SCORE_POS_X = 153;
-(:instinct2s)
-const SCORE_POS_Y = 80;
-
-(:instinct2)
-const LEVEL_POS_X = 145;
-(:instinct2)
-const LEVEL_POS_Y = 30;
-
-(:instinct2s)
-const LEVEL_POS_X = 136;
-(:instinct2s)
-const LEVEL_POS_Y = 25;
-
-(:instinct2)
-const ARC_POS_X = 144;
-(:instinct2)
-const ARC_POS_Y = 31;
-(:instinct2)
-const ARC_POS_R = 27;
-
-(:instinct2s)
-const ARC_POS_X = 136;
-(:instinct2s)
-const ARC_POS_Y = 27;
-(:instinct2s)
-const ARC_POS_R = 23;
-
-
 class FallingBricksView extends WatchUi.View {
     var offscreenBuffer as Graphics.BufferedBitmap?;
+    var offscreenBufferRef as Graphics.BufferedBitmapReference?;
     var gameplay = new Gameplay();
     var refreshTimer = new Timer.Timer();
     var cachedField = new[FIELD_W * FIELD_H];
@@ -81,11 +69,19 @@ class FallingBricksView extends WatchUi.View {
 
     // Load your resources here
     function onLayout(dc as Dc) as Void {
-        offscreenBuffer = new Graphics.BufferedBitmap(
-            {:width=>BUFF_W,
+        var bufferArgs = {
+            :width=>BUFF_W,
             :height=>BUFF_H,
             :palette=>[Graphics.COLOR_BLACK,
-                    Graphics.COLOR_WHITE]} );
+                    Graphics.COLOR_WHITE]
+        }; 
+                    
+        if ( Graphics has :createBufferedBitmap ){
+            offscreenBufferRef = Graphics.createBufferedBitmap(bufferArgs);
+            offscreenBuffer = offscreenBufferRef.get();
+        } else {
+            offscreenBuffer = new Graphics.BufferedBitmap(bufferArgs);    
+        }  
 
         dc = offscreenBuffer.getDc();
 
@@ -159,7 +155,7 @@ class FallingBricksView extends WatchUi.View {
         dc.drawText(LEVEL_POS_X, LEVEL_POS_Y, Graphics.FONT_LARGE, gameplay.level, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if( !gameplay.isActive ) {
-            dc.drawText(dc.getWidth() / 2, 135, Graphics.FONT_LARGE, "Game Over", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(dc.getWidth() / 2, dc.getHeight() * 76 / 100, Graphics.FONT_LARGE, "Game Over", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
         //var endDraw = System.getTimer();
