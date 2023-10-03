@@ -37,6 +37,28 @@ using Toybox.Graphics;
 (:round280) const ARC_POS_Y = LEVEL_POS_Y;
 (:round280) const ARC_POS_R = 27;
 
+(:round260) const BLOCK_SIZE = 10;
+(:round260) const FIELD_POS_X = 51;
+(:round260) const FIELD_POS_Y = 29;
+(:round260) const SCORE_POS_X = 255;
+(:round260) const SCORE_POS_Y = 129;
+(:round260) const LEVEL_POS_X = 195;
+(:round260) const LEVEL_POS_Y = 57;
+(:round260) const ARC_POS_X = LEVEL_POS_X;
+(:round260) const ARC_POS_Y = LEVEL_POS_Y;
+(:round260) const ARC_POS_R = 27;
+
+(:round240) const BLOCK_SIZE = 9;
+(:round240) const FIELD_POS_X = 45;
+(:round240) const FIELD_POS_Y = 29;
+(:round240) const SCORE_POS_X = 235;
+(:round240) const SCORE_POS_Y = 120;
+(:round240) const LEVEL_POS_X = 179;
+(:round240) const LEVEL_POS_Y = 60;
+(:round240) const ARC_POS_X = LEVEL_POS_X;
+(:round240) const ARC_POS_Y = LEVEL_POS_Y;
+(:round240) const ARC_POS_R = 27;
+
 const BUFF_W = FIELD_W * BLOCK_SIZE + 3;
 const BUFF_H = FIELD_H * BLOCK_SIZE + 3;
 
